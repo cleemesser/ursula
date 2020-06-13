@@ -250,13 +250,17 @@ def main():
         ),
     )
 
-    if module.params['provider_network_type'] in ['vlan' , 'flat']:
-            if not module.params['provider_physical_network']:
-                module.fail_json(msg = " for vlan and flat networks, variable provider_physical_network should be set.")
+    if (
+        module.params['provider_network_type'] in ['vlan', 'flat']
+        and not module.params['provider_physical_network']
+    ):
+        module.fail_json(msg = " for vlan and flat networks, variable provider_physical_network should be set.")
 
-    if module.params['provider_network_type'] in ['vlan', 'gre', 'vxlan']:
-            if not module.params['provider_segmentation_id']:
-                module.fail_json(msg = " for vlan, gre & vxlan networks, variable provider_segmentation_id should be set.")
+    if (
+        module.params['provider_network_type'] in ['vlan', 'gre', 'vxlan']
+        and not module.params['provider_segmentation_id']
+    ):
+        module.fail_json(msg = " for vlan, gre & vxlan networks, variable provider_segmentation_id should be set.")
 
     neutron = _get_neutron_client(module, module.params)
 
@@ -264,19 +268,20 @@ def main():
 
     if module.params['state'] == 'present':
         network_id = _get_net_id(neutron, module)
-        if not network_id:
-            network_id = _create_network(module, neutron)
-            module.exit_json(changed = True, result = "Created", id = network_id)
-        else:
+        if network_id:
             module.exit_json(changed = False, result = "Success", id = network_id)
 
+        else:
+            network_id = _create_network(module, neutron)
+            module.exit_json(changed = True, result = "Created", id = network_id)
     if module.params['state'] == 'absent':
         network_id = _get_net_id(neutron, module)
-        if not network_id:
-            module.exit_json(changed = False, result = "Success")
-        else:
+        if network_id:
             _delete_network(module, network_id, neutron)
             module.exit_json(changed = True, result = "Deleted")
+
+        else:
+            module.exit_json(changed = False, result = "Success")
 
 # this is magic, see lib/ansible/module.params['common.py
 from ansible.module_utils.basic import *

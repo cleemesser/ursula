@@ -133,8 +133,7 @@ class NovaGroup(object):
         # Check secgroup is an UUID
         if uuidutils.is_uuid_like(strutils.safe_encode(secgroup)):
             try:
-                sg = self._sg.get(secgroup)
-                return sg
+                return self._sg.get(secgroup)
             except exceptions.NotFound:
                 return False
 
@@ -196,11 +195,10 @@ class SecurityGroupRule(NovaGroup):
         elif type(group) == dict:
             g = group.get('name')
             group = self._get_secgroup(g)
-        r = "%s-%s-%s-%s" % (rule.get('ip_protocol'),
+        return "%s-%s-%s-%s" % (rule.get('ip_protocol'),
                              rule.get('from_port'),
                              rule.get('to_port'),
                              group)
-        return r
 
     def _lookup_dict(self, rules):
         """

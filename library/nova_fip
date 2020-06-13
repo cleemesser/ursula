@@ -112,11 +112,10 @@ EXAMPLES = '''
 '''
 
 def _floating_ip_already_associated(server, floating_ip):
-    changed = False
-    for network, ip_list in server.networks.iteritems():
-        if floating_ip in ip_list:
-            changed = True
-    return changed
+    return any(
+        floating_ip in ip_list
+        for network, ip_list in server.networks.iteritems()
+    )
 
 def _associate_floating_ip(nova, floating_ip, server):
     s = _find_server(nova, server)
@@ -212,21 +211,20 @@ def main():
         if floating_ip is None:
             if server is None:
                 address = _allocate_address(nova, pool)
-                module.exit_json(changed=True, floating_ip=address.ip)
             else:
                 address = _allocate_address(nova, pool)
                 changed = _associate_floating_ip(nova, address.ip, server)
-                module.exit_json(changed=True, floating_ip=address.ip)
+            module.exit_json(changed=True, floating_ip=address.ip)
         else:
             changed = _associate_floating_ip(nova, floating_ip, server)
             module.exit_json(changed=changed)
     else:
         if server is None:
             changed = _deallocate_address(nova, floating_ip)
-            module.exit_json(changed=changed)
         else:
             changed = _disassociate_floating_ip(nova, floating_ip, server)
-            module.exit_json(changed=changed)
+
+        module.exit_json(changed=changed)
 
 # this is magic, see lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>
