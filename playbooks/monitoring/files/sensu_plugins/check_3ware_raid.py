@@ -139,21 +139,13 @@ def test_all(verbosity, warn_true=False, no_summary=False, show_drives=False):
 
     drive_result, drive_message = test_drives(verbosity, warn_true, no_summary)
 
-    if drive_result > array_result:
-        result = drive_result
+    result = max(drive_result, array_result)
+    if drive_result != OK and array_result == OK:
+        message = "Arrays OK but... " + drive_message
+    elif drive_result != OK or show_drives:
+        message = array_message + ", " + drive_message
     else:
-        result = array_result
-
-    if drive_result != OK:
-        if array_result == OK:
-            message = "Arrays OK but... " + drive_message
-        else:
-            message = array_message + ", " + drive_message
-    else:
-        if show_drives:
-            message = array_message + ", " + drive_message
-        else:
-            message = array_message
+        message = array_message
 
     return result, message
 
@@ -328,11 +320,7 @@ def add_checked_summary(message, number_devices, number_controllers, device):
     else:
         device = "[unknown devices, please check code]"
 
-    if number_controllers == 1:
-        controller = "controller"
-    else:
-        controller = "controllers"
-
+    controller = "controller" if number_controllers == 1 else "controllers"
     message += " [%s %s checked on %s %s]" % (number_devices, device, \
                                                 number_controllers, controller)
 

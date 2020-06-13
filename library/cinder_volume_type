@@ -158,12 +158,13 @@ def _create_encrypted_volume_type(module, cinderclient, volume_type, provider,
 
     enc_volume_type = _get_encrypted_volume_type_id_name(cinderclient,
                                                          volume_type_id)
-    if enc_volume_type:
-        if (provider == enc_volume_type.provider and
-            control_location == enc_volume_type.control_location and
-            cipher == enc_volume_type.cipher and
-            int(key_size) == enc_volume_type.key_size):
-            module.exit_json(changed=False, result="unchanged")
+    if enc_volume_type and (
+        provider == enc_volume_type.provider
+        and control_location == enc_volume_type.control_location
+        and cipher == enc_volume_type.cipher
+        and int(key_size) == enc_volume_type.key_size
+    ):
+        module.exit_json(changed=False, result="unchanged")
 
     # FIXME(cmt) this should not be necessary but seems to be broken
     # in cinder itself, so force it here.

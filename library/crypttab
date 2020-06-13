@@ -73,7 +73,7 @@ def _write_crypttab(entries):
 
 def update_crypttab(module, state, target, source=None, keyfile='none',
                     opts='default'):
-    if not state in ('absent', 'present'):
+    if state not in ('absent', 'present'):
         module.fail_json(msg="crypttab 'state' must be one of 'absent' \
                              or 'present'")
 
@@ -138,7 +138,7 @@ def target_in_crypttab(module, target):
 
 
 def cryptdisks_command(module, action, target):
-    if not action in ('start', 'stop'):
+    if action not in ('start', 'stop'):
         return -1, "Logic problem: cryptdisks_start requires 'start' or 'stop'"
 
     cmd = None

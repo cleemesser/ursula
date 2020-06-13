@@ -236,7 +236,7 @@ def main():
         mutually_exclusive = [['file','copy_from']],
     )
     if module.params['state'] == 'present':
-        if not module.params['file'] and not module.params['copy_from']:
+        if not (module.params['file'] or module.params['copy_from']):
             module.fail_json(msg = "Either file or copy_from variable should be set to create the image")
         client = _get_glance_client(module, module.params)
         id = _glance_image_present(module, module.params, client)

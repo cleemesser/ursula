@@ -87,7 +87,7 @@ class RabbitMqPolicy(object):
         self._rabbitmqctl = module.get_bin_path('rabbitmqctl', True)
 
     def _exec(self, args, run_in_check_mode=False):
-        if not self._module.check_mode or (self._module.check_mode and run_in_check_mode):
+        if not self._module.check_mode or run_in_check_mode:
             cmd = [self._rabbitmqctl, '-q', '-n', self._node]
             args.insert(1, '-p')
             args.insert(2, self._vhost)
@@ -106,12 +106,15 @@ class RabbitMqPolicy(object):
 
     def set(self):
         import json
-        args = ['set_policy']
-        args.append(self._name)
-        args.append(self._pattern)
-        args.append(json.dumps(self._tags))
-        args.append('--priority')
-        args.append(self._priority)
+        args = [
+            'set_policy',
+            self._name,
+            self._pattern,
+            json.dumps(self._tags),
+            '--priority',
+            self._priority,
+        ]
+
         return self._exec(args)
 
     def clear(self):
